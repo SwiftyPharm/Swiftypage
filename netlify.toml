@@ -1,0 +1,78 @@
+[build]
+  functions = "netlify/functions"
+
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL"
+
+[functions]
+  node_bundler = "esbuild"
+
+# ══════════════════════════════════════════════════
+#  API ET WEBHOOKS — toujours AVANT la règle catch-all
+# ══════════════════════════════════════════════════
+
+# Création / gestion des invitations (canal démarchage, back office admin)
+[[redirects]]
+  from = "/api/invitations"
+  to = "/.netlify/functions/invitations"
+  status = 200
+  force = true
+
+# Notifications : ordonnances, email de commande, SMS éventuel
+[[redirects]]
+  from = "/api/notify"
+  to = "/.netlify/functions/notify"
+  status = 200
+  force = true
+
+# ══════════════════════════════════════════════════
+#  PAGES STATIQUES
+# ══════════════════════════════════════════════════
+[[redirects]]
+  from = "/index.html"
+  to = "/index.html"
+  status = 200
+[[redirects]]
+  from = "/signup.html"
+  to = "/signup.html"
+  status = 200
+[[redirects]]
+  from = "/login.html"
+  to = "/login.html"
+  status = 200
+[[redirects]]
+  from = "/backoffice.html"
+  to = "/backoffice.html"
+  status = 200
+[[redirects]]
+  from = "/admin.html"
+  to = "/admin.html"
+  status = 200
+[[redirects]]
+  from = "/promos.html"
+  to = "/promos.html"
+  status = 200
+[[redirects]]
+  from = "/commande.html"
+  to = "/commande.html"
+  status = 200
+[[redirects]]
+  from = "/privacy.html"
+  to = "/privacy.html"
+  status = 200
+[[redirects]]
+  from = "/terms.html"
+  to = "/terms.html"
+  status = 200
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+# ══════════════════════════════════════════════════
+#  PAGES PHARMACIES — catch-all, toujours en DERNIER
+# ══════════════════════════════════════════════════
+[[redirects]]
+  from = "/*"
+  to = "/page.html"
+  status = 200
