@@ -205,6 +205,7 @@ body{
 
 .nav-right{display:flex;align-items:center;gap:10px;margin-left:auto}
 #save-indicator{font-size:11px;font-weight:600;opacity:0;transition:opacity .3s;padding:3px 10px;border-radius:20px;background:var(--blue-l);color:var(--blue)}
+#save-indicator.ko{background:#fee2e2;color:#b91c1c}
 .btn-logout{font-size:12px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all .2s}
 .btn-logout:hover{background:var(--bg);color:var(--text)}
 .btn-view-page{font-size:12px;font-weight:600;color:var(--blue);background:var(--blue-l);border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:4px}
@@ -1057,8 +1058,23 @@ function loadConfig(){
 function getConfig(){return loadConfig();}
 function flashSaved(){
   const el=document.getElementById('save-indicator');
+  el.classList.remove('ko');
+  el.innerHTML = '<svg class="ico ico-sm"><use href="#i-check"/></svg> Sauvegardé';
   el.style.opacity='1';clearTimeout(el._t);
   el._t=setTimeout(()=>el.style.opacity='0',2200);
+}
+
+// Une sauvegarde refusée par la base ne doit JAMAIS passer inaperçue :
+// c'est ce silence qui a masqué des heures durant une colonne manquante.
+function flashErreur(detail){
+  const el=document.getElementById('save-indicator');
+  if(!el) return;
+  el.classList.add('ko');
+  el.textContent = 'Non sauvegardé';
+  el.title = detail || '';
+  el.style.opacity='1';clearTimeout(el._t);
+  el._t=setTimeout(()=>{ el.style.opacity='0'; el.classList.remove('ko'); }, 6000);
+  console.error('Sauvegarde refusée :', detail);
 }
 
 let _syncTimer;
@@ -1095,12 +1111,17 @@ async function syncToSupabase(cfg){
       logo_url: cfg.pharmacy.logo || '',
       reseaux:cfg.pharmacy.reseaux||{}
     };
-    await fetch(SUPABASE_REST+'pages?on_conflict=slug',{
+    const res = await fetch(SUPABASE_REST+'pages?on_conflict=slug',{
       method:'POST',
       headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
       body:JSON.stringify(payload)
     });
-  }catch(e){console.warn('Sync error:',e);}
+    if(!res.ok){
+      const txt = await res.text();
+      flashErreur('HTTP ' + res.status + ' · ' + txt.slice(0,200));
+      return;
+    }
+  }catch(e){ flashErreur(e.message); }
 }
 
 async function loadFromSupabase(){
@@ -1223,11 +1244,21 @@ async function handleLogoUpload(e) {
   const ext = file.name.split('.').pop();
   const fileName = SLUG + '-logo.' + ext;
 
-  const { data, error } = await sb.storage
+  const { error } = await sb.storage
     .from('pages')
     .upload(fileName, file, { upsert: true });
 
-  if (error) { console.error('Upload error:', error); return; }
+  if (error) {
+    // Cause la plus fréquente sur un projet neuf : le bucket « pages »
+    // n'existe pas encore, ou n'autorise pas l'écriture.
+    const detail = (error.message || '') +
+      (/not found|bucket/i.test(error.message || '')
+        ? " — le bucket « pages » est introuvable dans Supabase (Storage → New bucket → nom « pages » → Public)."
+        : '');
+    flashErreur('Logo : ' + detail);
+    alert("L'import du logo a échoué.\n\n" + detail);
+    return;
+  }
 
   // URL publique
   const { data: urlData } = sb.storage
