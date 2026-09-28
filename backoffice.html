@@ -1608,11 +1608,21 @@ const RESEAUX_DEF = {
   google:{
     label:'Google Avis', img:'/assets/google-avis-icon.png', svg:'i-star',
     couleur:'linear-gradient(135deg,#4285F4,#EA4335)',
-    saisie:'nom', exemple:'Mon Établissement, Paris',
-    aide:"Saisissez le nom exact tel qu'il apparaît sur Google.",
+    saisie:'pseudo',
+    prefixe:'…writereview?placeid=',
+    exemple:'ChIJN1t_tDeuEmsRUsoyG83frY4',
+    aide:"Collez uniquement le Place ID de votre établissement. Le bouton « Trouver mon Place ID » ouvre l'outil officiel de Google : cherchez votre établissement, l'identifiant s'affiche sous son nom.",
     recherche:'google',
-    construire:v=>'https://www.google.com/search?q='+encodeURIComponent(v+' avis google')+'&tbm=lcl',
-    extraire:u=>'',
+    valider:v=>/^[A-Za-z0-9_\-]{10,}$/.test(v.trim())
+      ? ''
+      : "Un Place ID ne contient que des lettres, des chiffres, des tirets et des underscores (au moins 10 caractères).",
+    construire:v=>GOOGLE_AVIS_BASE + encodeURIComponent(v.trim()),
+    // Récupère le Place ID d'un lien déjà enregistré, quel qu'en soit le format.
+    extraire:u=>{
+      if(!u) return '';
+      const m = String(u).match(/[?&]place_?id=([^&]+)/i);
+      return m ? decodeURIComponent(m[1]) : '';
+    },
   },
   website:{
     label:'Site Web', img:'/assets/website-icon.png', svg:'i-globe',
@@ -1623,6 +1633,10 @@ const RESEAUX_DEF = {
     extraire:u=>u||'',
   },
 };
+
+// Formulaire d'avis Google : le visiteur arrive directement sur la
+// fenêtre de notation, sans passer par la fiche de l'établissement.
+const GOOGLE_AVIS_BASE = 'https://search.google.com/local/writereview?placeid=';
 
 // État courant : { cle: {actif, valeur, url} }
 // Les liens personnalisés portent une clé « perso_<horodatage> » et
@@ -1817,7 +1831,7 @@ function ouvrirEditeur(cle){
     champ.insertAdjacentHTML('beforeend',
       `<button class="lm-recherche" data-lm-rech="${d.recherche}">
          <svg class="ico"><use href="#i-search"/></svg>
-         ${d.recherche==='doctolib' ? 'Trouver ma page Doctolib' : 'Vérifier ma fiche Google'}
+         ${d.recherche==='doctolib' ? 'Trouver ma page Doctolib' : 'Trouver mon Place ID'}
        </button>`);
   }
   if(d.aide){
@@ -1913,9 +1927,12 @@ function lancerRecherche(type){
   const ville = (document.getElementById('ph-adresse')?.value || '').trim();
   const q = [nom, ville].filter(Boolean).join(' ');
 
+  // Outil officiel de Google : on cherche son établissement, et le
+  // Place ID s'affiche sous son nom, prêt à être copié.
   const url = type === 'doctolib'
     ? 'https://www.google.com/search?q=' + encodeURIComponent('site:doctolib.fr ' + (q || 'mon etablissement'))
-    : 'https://www.google.com/search?q=' + encodeURIComponent((q || 'mon etablissement') + ' avis google') + '&tbm=lcl';
+    : 'https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder'
+      + (q ? '#q=' + encodeURIComponent(q) : '');
 
   window.open(url, '_blank', 'noopener');
 }
