@@ -1159,7 +1159,7 @@ const DEFAULT_PW  = 'swift2024';
 
 
 const SUPABASE_URL_BASE = 'https://lfmgmzcqwteymycipuqd.supabase.co';
-const SUPABASE_REST     = 'https://twewgozdynowoieyqrcf.supabase.co/rest/v1/';
+const SUPABASE_REST     = SUPABASE_URL_BASE + '/rest/v1/';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmbWdtemNxd3RleW15Y2lwdXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1OTQ2NjIsImV4cCI6MjEwNjE3MDY2Mn0.RRaY1wbjavSbSYtpmw8VNqALMSP9s_ZUWG_lISegz0k';
 const EMAILJS_SERVICE   = 'service_ehw7pcv';
 const sb = supabase.createClient(SUPABASE_URL_BASE, SUPABASE_KEY);
@@ -1258,7 +1258,7 @@ async function syncToSupabase(cfg){
 async function loadFromSupabase(){
   if(!SLUG) return;
   try{
-    const res=await fetch(SUPABASE_REST+'pharmacies?slug=eq.'+SLUG+'&select=*',{
+    const res=await fetch(SUPABASE_REST+'pages?slug=eq.'+SLUG+'&select=*',{
       headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
     });
     if(res.ok){
