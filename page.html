@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>SwiftyPharm</title>
+  <title>SwiftyPage</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-KH4392ZE5G"></script>
   <script>
@@ -13,10 +13,10 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-KH4392ZE5G');
-    function trackSend() { gtag('event', 'ordonnance_envoyee'); }
+    function trackSend() { gtag('event', 'document_envoye'); }
   </script>
 
-  <!-- EmailJS retiré : les ordonnances passent par /api/notify (Brevo, RGPD) -->
+  <!-- Les documents passent par /api/notify (Brevo, hébergement UE, RGPD) -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -40,7 +40,7 @@
     }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -236,14 +236,14 @@
       display: block;
     }
 
-    /* ══ BENTO ORDONNANCE ══ */
-    .card-ordonnance {
+    /* ══ BENTO ENVOI DE DOCUMENT ══ */
+    .card-document {
       background: #ffffff;
       border-radius: 20px;
       padding: 24px;
       cursor: default;
     }
-    .card-ordonnance:hover { transform: none; box-shadow: none; }
+    .card-document:hover { transform: none; box-shadow: none; }
 
     /* ══ CHAMPS FORMULAIRE ══ */
     .input-group label {
@@ -257,7 +257,7 @@
       width: 100%; padding: 11px 12px; border-radius: 10px;
       border: 1.5px solid #d0d0d0;
       background: #f7f7f7; color: #111;
-      font-family: 'Inter', sans-serif; font-size: 14px;
+      font-family: 'Montserrat', sans-serif; font-size: 14px;
       margin-bottom: 14px; transition: border 0.2s;
     }
     .input-group input::placeholder { color: #aaa; }
@@ -327,7 +327,7 @@
     /* ══ BOUTON ENVOYER ══ */
     .btn-send {
       width: 100%; height: 3.2em; border-radius: 30em;
-      font-size: 15px; font-family: 'Poppins', inherit; font-weight: 800;
+      font-size: 15px; font-family: 'Montserrat', inherit; font-weight: 800;
       border: none; cursor: pointer; color: #fff;
       background: #0012ff;
       box-shadow: 0 4px 16px rgba(0,18,255,0.25);
@@ -344,7 +344,7 @@
     .success-actions { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 6px; }
     .btn-back-home { width: 48px; height: 48px; border-radius: 12px; border: 1.5px solid #ddd; background: #f0f0f0; color: #555; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
     .btn-back-home:hover { background: #e0e0e0; color: #111; }
-    .btn-google-review { flex: 1; height: 48px; border-radius: 12px; border: none; background: #0012ff; color: #fff; font-family: 'Poppins', inherit; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: box-shadow 0.2s, transform 0.2s; }
+    .btn-google-review { flex: 1; height: 48px; border-radius: 12px; border: none; background: #0012ff; color: #fff; font-family: 'Montserrat', inherit; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; transition: box-shadow 0.2s, transform 0.2s; }
     .btn-google-review:hover { box-shadow: 0 4px 16px rgba(0,18,255,0.3); transform: translateY(-1px); }
     @keyframes pop-in { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -376,76 +376,10 @@
     .horaire-ligne .heure.ferme { color:#aaa; font-weight:500; }
     .modal-close {
       margin-top:18px; width:100%; padding:13px; border-radius:30px;
-      background:#f0f0f0; border:none; font-family:'Inter',sans-serif;
+      background:#f0f0f0; border:none; font-family:'Montserrat',sans-serif;
       font-size:14px; font-weight:700; color:#111; cursor:pointer;
     }
 
-    /* ══ POPUP INFOS (STYLES ÉTENDUS) ══ */
-    .infos-section-title {
-      font-size:15px; font-weight:800; color:#111; margin:28px 0 10px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .infos-section-title:first-child { margin-top: 0; }
-    .infos-intro {
-      font-size:13px; color:#666; margin-bottom:14px; line-height:1.5;
-    }
-    .urgence-ligne {
-      display:flex; align-items:center; gap:12px;
-      padding:12px 14px; border-radius:12px; background:#f5f6fa;
-      margin-bottom:8px;
-    }
-    .urgence-numero {
-      font-size:18px; font-weight:800; color:#0012ff;
-      min-width:44px; text-align:center;
-    }
-    .urgence-texte { display:flex; flex-direction:column; gap:1px; }
-    .urgence-nom { font-size:14px; font-weight:700; color:#111; }
-    .urgence-desc { font-size:12px; color:#777; line-height:1.4; }
-    
-    .infos-garde-box {
-      background:#e8eaff; border-radius:14px; padding:14px 16px;
-      margin:20px 0; font-size:13px; color:#333; line-height:1.5; text-align:center;
-    }
-    .infos-garde-box a {
-      color:#0012ff; font-weight:700; text-decoration:none;
-    }
-    
-    /* Nouvelles boîtes d'informations (Santé, Recyclage, Ordonnance) */
-    .info-box-styled {
-      background: #f8f9fc;
-      border: 1px solid #eaeff5;
-      border-radius: 14px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-    }
-    .info-box-styled h4 {
-      font-size: 13px;
-      font-weight: 700;
-      color: #0012ff;
-      margin-bottom: 4px;
-    }
-    .info-box-styled p {
-      font-size: 12px;
-      color: #555;
-      line-height: 1.45;
-      margin-bottom: 10px;
-    }
-    .info-box-styled p:last-child {
-      margin-bottom: 0;
-    }
-
-    .docteur-box {
-      display:flex; align-items:center; gap:12px;
-      background:#f5f6fa; border-radius:14px; padding:14px 16px; margin-top:6px;
-    }
-    .docteur-avatar {
-      width:44px; height:44px; border-radius:50%;
-      background:#0012ff; color:#fff; display:flex; align-items:center; justify-content:center;
-      font-weight:800; font-size:16px; flex-shrink:0;
-    }
-    .docteur-info { display:flex; flex-direction:column; gap:1px; }
-    .docteur-nom { font-size:14px; font-weight:800; color:#111; }
-    .docteur-titre { font-size:12px; color:#666; }
 
     /* ══ CADRE DESKTOP ══ */
     @media (min-width: 769px) {
@@ -465,12 +399,12 @@
 
   <!-- ══ BANNIÈRE ══ -->
   <div class="banniere">
-    <img id="banniere-img" src="/assets/banniere_test.png" alt="Bannière pharmacie" onerror="this.style.display='none'">
+    <img id="banniere-img" src="/assets/banniere_test.png" alt="Bannière" onerror="this.style.display='none'">
   </div>
 
   <!-- ══ HEADER PROFIL (Dynamique via Supabase) ══ -->
   <div class="profile-section">
-    <img class="profile-avatar" id="profile-avatar-img" src="/assets/logo_pharmacie_general.jpg" alt="Logo pharmacie" onerror="if(this.src.indexOf('logo_pharmacie_general')===-1){this.src='/assets/logo_pharmacie_general.jpg';}">
+    <img class="profile-avatar" id="profile-avatar-img" src="/assets/logo_pharmacie_general.jpg" alt="Logo" onerror="if(this.src.indexOf('logo_pharmacie_general')===-1){this.src='/assets/logo_pharmacie_general.jpg';}">
     <div class="profile-name" id="profile-name-display"></div>
     <div class="profile-sub" id="profile-sub-display"></div>
 
@@ -484,11 +418,6 @@
       <div style="display:flex; flex-direction:column; align-items:center;">
         <a class="contact-icon-btn" id="link-maps" href="https://maps.app.goo.gl/sVoh48TPr2kfwsWB7" target="_blank">
           <img src="map-pin.svg" alt="Adresse">
-        </a>
-      </div>
-      <div style="display:flex; flex-direction:column; align-items:center;">
-        <a class="contact-icon-btn" id="link-infos" href="#">
-          <img src="infos.svg" alt="Infos">
         </a>
       </div>
       <div style="display:flex; flex-direction:column; align-items:center;">
@@ -513,8 +442,8 @@
   <img class="card-full-img" src="promo-du-mois.png" alt="Promo du mois">
     </a>
 
-    <!-- Formulaire ordonnance -->
-    <div class="card card-ordonnance" id="card-ordonnance" style="display:none">
+    <!-- Formulaire d'envoi de document -->
+    <div class="card card-document" id="card-document" style="display:none">
       <div id="form-content">
         <div id="doc-titre" style="color:#111; font-weight:800; font-size:18px; margin-bottom:24px; text-align:center;">Envoyez votre document</div>
 
@@ -560,13 +489,13 @@
           </div>
         </div>
 
-        <button class="btn-send" id="btn-send" onclick="sendWithAttachment()" disabled>Envoyer à la pharmacie</button>
+        <button class="btn-send" id="btn-send" onclick="sendWithAttachment()" disabled>Envoyer</button>
       </div>
 
       <div class="success-overlay" id="success-overlay">
         <img class="success-icon" src="confirm_icon.png" alt="Succès">
-        <div class="success-title">Ordonnance envoyée !</div>
-        <div class="success-sub">La pharmacie a bien reçu votre document.<br>Nous vous contacterons si besoin.</div>
+        <div class="success-title">Document envoyé !</div>
+        <div class="success-sub">Votre document a bien été reçu.<br>Nous vous contacterons si besoin.</div>
         <div class="success-actions">
           <button class="btn-back-home" id="btn-back-home" title="Retour">✕</button>
           <a href="#" id="btn-google-review" class="btn-google-review" target="_blank" rel="noopener" style="display:none;">⭐ Tout se passe bien ? Laissez-nous un avis !</a>
@@ -577,7 +506,7 @@
     </div>
   </div>
 
-  <!-- ══ SCRIPTS FORMULAIRE ORDONNANCE ══ -->
+  <!-- ══ SCRIPTS DU FORMULAIRE D'ENVOI ══ -->
   <script>
   const fileInput      = document.getElementById('fileInput');
   const Title          = document.getElementById('Title');
@@ -718,7 +647,7 @@
   removeFileBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     selectedFile = null; fileInput.value = '';
-    Title.innerText = 'Déposez votre ordonnance ici';
+    Title.innerText = 'Déposez votre document ici';
     Subtitle.innerText = 'JPG, PNG ou PDF · 5 MB max';
     removeFileBtn.style.display = 'none';
     filePreviewImg.style.display = 'none';
@@ -776,15 +705,15 @@
     btnSend.style.opacity = "0.6";
     btnSend.disabled = true;
 
-    // Ordonnance transmise via notify.js (Brevo, hébergement UE, RGPD).
+    // Document transmis via notify.js (Brevo, hébergement UE, RGPD).
     // Le destinataire est résolu côté serveur à partir du slug : la page
-    // n'a jamais besoin de connaître l'email de la pharmacie.
+    // n'a jamais besoin de connaître l'email du destinataire.
     compresserOrdo(selectedFile).then(function(fichier){
       return fetch('/api/notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'ordonnance',
+          action: 'document',
           slug: PAGE_SLUG,
           patient_nom: senderName,
           patient_tel: senderPhone || '',
@@ -805,10 +734,10 @@
       formContent.style.display = 'none';
       successOverlay.style.display = 'flex';
     }).catch(function(error){
-      console.error("Échec envoi ordonnance :", error);
+      console.error("Échec de l'envoi :", error);
       playSound('error');
       alert(error.message || "Erreur lors de l'envoi. Veuillez réessayer.");
-      btnSend.textContent = "Envoyer à la pharmacie";
+      btnSend.textContent = "Envoyer";
       btnSend.style.opacity = "1";
       btnSend.disabled = false;
     });
@@ -850,7 +779,7 @@
     selectedFile = null; fileInput.value = '';
     nameInput.value = '';
     if (phoneInput) phoneInput.value = '';
-    Title.innerText = 'Déposez votre ordonnance ici';
+    Title.innerText = 'Déposez votre document ici';
     Subtitle.innerText = 'JPG, PNG ou PDF · 5 MB max';
     removeFileBtn.style.display = 'none';
     filePreviewImg.style.display = 'none';
@@ -875,97 +804,7 @@
     </div>
   </div>
 
-  <!-- ══ MODALE INFOS (AVEC LES 3 NOUVEAUX ÉLÉMENTS) ══ -->
-  <div class="modal-overlay" id="modal-infos" onclick="if(event.target===this)closeInfos()">
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="modal-title">Informations utiles</div>
-
-      <!-- 1. URGENCES -->
-      <div class="infos-section-title">🚨 En cas d'urgence</div>
-      <div class="infos-intro">Voici les numéros principaux à contacter pour vos urgences rapides.</div>
-
-      <div class="urgence-ligne">
-        <div class="urgence-numero">15</div>
-        <div class="urgence-texte">
-          <div class="urgence-nom">Samu</div>
-          <div class="urgence-desc">En cas d'urgences vitales</div>
-        </div>
-      </div>
-
-      <div class="urgence-ligne">
-        <div class="urgence-numero">18</div>
-        <div class="urgence-texte">
-          <div class="urgence-nom">Pompiers</div>
-          <div class="urgence-desc">Situation de péril ou accident</div>
-        </div>
-      </div>
-
-      <div class="urgence-ligne">
-        <div class="urgence-numero">114</div>
-        <div class="urgence-texte">
-          <div class="urgence-nom">Sourds / Malentendants</div>
-          <div class="urgence-desc">Numéro unique, national et gratuit, accessible par visiophonie, tchat, SMS ou fax, 24h/24, 7j/7.</div>
-        </div>
-      </div>
-
-      <div class="urgence-ligne">
-        <div class="urgence-numero">17</div>
-        <div class="urgence-texte">
-          <div class="urgence-nom">Police secours</div>
-          <div class="urgence-desc">Signaler une infraction</div>
-        </div>
-      </div>
-
-      <div class="infos-garde-box">
-        Pour connaître la pharmacie de garde près de chez vous, rendez-vous sur<br>
-        <a href="https://www.3237.fr" target="_blank">www.3237.fr</a>
-      </div>
-
-      <!-- 2. NOUVEAU : SERVICES DE SANTÉ EN OFFICINE -->
-      <div class="infos-section-title">💉 Services de santé en officine</div>
-      <div class="info-box-styled">
-        <h4>Vaccination & Rappels</h4>
-        <p>Nous réalisons vos vaccins (Grippe, Covid-19, rappels obligatoires adultes : Tétanos, Diphtérie, Polio...) directement à la pharmacie, avec ou sans rendez-vous.</p>
-        <h4>Dépistages rapides (TROD)</h4>
-        <p>Angine, Grippe, Covid-19 ou infection urinaire (Cystite) : nous réalisons des tests rapides en quelques minutes au comptoir, permettant la délivrance d'un traitement adapté sous certaines conditions.</p>
-      </div>
-
-      <!-- 3. NOUVEAU : RECYCLAGE ÉCO-RESPONSABLE -->
-      <div class="infos-section-title">♻️ Recyclage : Médicaments & Aiguilles</div>
-      <div class="info-box-styled">
-        <h4>Médicaments non utilisés (Cyclamed)</h4>
-        <p>Ne jetez pas vos médicaments à la poubelle ou dans l'évier ! Rapportez-nous vos médicaments périmés ou non utilisés (en séparant les boîtes en carton et les notices pour le tri sélectif).</p>
-        <h4>Aiguilles et seringues (DASTRI)</h4>
-        <p>Vous êtes en auto-traitement ? Des boîtes jaunes sécurisées sont à votre disposition gratuitement à l'officine pour éliminer vos déchets piquants ou coupants en toute sécurité.</p>
-      </div>
-
-      <!-- 4. NOUVEAU : ORDONNANCES & CARTE VITALE -->
-      <div class="infos-section-title">💳 Ordonnances & Carte Vitale</div>
-      <div class="info-box-styled">
-        <h4>Validité de votre ordonnance</h4>
-        <p>Vous avez <strong>3 mois</strong> maximum après la date de prescription du médecin pour venir chercher votre traitement pour la première fois à la pharmacie.</p>
-        <h4>Mise à jour de la Carte Vitale</h4>
-        <p>Pensez à mettre à jour votre carte au moins <strong>1 fois par an</strong> et après chaque changement de situation (déménagement, maternité, affection de longue durée). Une borne libre-service est à votre disposition.</p>
-      </div>
-
-      <!-- 5. DOCTEUR EN PHARMACIE — masqué tant qu'aucun nom n'est renseigné -->
-      <div id="docteur-bloc" style="display:none;">
-        <div class="infos-section-title">👨‍⚕️ Votre docteur en pharmacie</div>
-        <div class="docteur-box">
-          <div class="docteur-avatar" id="docteur-initiales">DR</div>
-          <div class="docteur-info">
-            <div class="docteur-nom" id="docteur-nom"></div>
-            <div class="docteur-titre">Pharmacien Titulaire — Docteur en pharmacie</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="modal-close" onclick="closeInfos()">Fermer</button>
-    </div>
-  </div>
-
-  <!-- ══ SCRIPTS HORAIRES / INFOS / SUPABASE DYNAMIQUE ══ -->
+  <!-- ══ SCRIPTS HORAIRES ET SUPABASE ══ -->
   <script>
   const JOURS_FR = [
     {id:'lun',label:'Lundi'},{id:'mar',label:'Mardi'},{id:'mer',label:'Mercredi'},
@@ -1029,29 +868,6 @@
     document.body.style.overflow = '';
   }
 
-  document.getElementById('link-infos').addEventListener('click', function(e) {
-    e.preventDefault();
-    openInfos();
-  });
-
-  function openInfos() {
-    const nomEl = document.getElementById('docteur-nom');
-    const avatarEl = document.getElementById('docteur-initiales');
-    const nomComplet = nomEl.textContent.replace(/^Dr\.?\s*/i, '').trim();
-    const parts = nomComplet.split(' ').filter(Boolean);
-    const initiales = parts.length >= 2
-      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-      : nomComplet.substring(0, 2).toUpperCase();
-    avatarEl.textContent = initiales;
-
-    document.getElementById('modal-infos').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeInfos() {
-    document.getElementById('modal-infos').classList.remove('open');
-    document.body.style.overflow = '';
-  }
 
   // ═════════════════════════════════════════════════════════════
   // SYNCHRONISATION DU PROFIL & DES MID ICONS AVEC SUPABASE
@@ -1070,7 +886,7 @@
       if (data.nom) document.getElementById('profile-name-display').textContent = data.nom;
       if (data.soustitre) document.getElementById('profile-sub-display').textContent = data.soustitre;
       const _logo = data.logo_url || data.logo_base64;
-      // On ne remplace l'image que si le pharmacien a vraiment un logo.
+      // On ne remplace l'image que si le client a vraiment un logo.
       // Sinon on laisse le logo par défaut déjà présent dans le HTML.
       if (_logo) document.getElementById('profile-avatar-img').src = _logo;
       if (data.banniere_base64) document.getElementById('banniere-img').src = data.banniere_base64;
@@ -1083,12 +899,6 @@
       if (data.telephone) document.getElementById('link-phone').href = 'tel:' + data.telephone;
       if (data.adresse_maps) document.getElementById('link-maps').href = data.adresse_maps;
 
-      if (data.docteur && data.docteur.trim()) {
-        const docEl = document.getElementById('docteur-nom');
-        const blocEl = document.getElementById('docteur-bloc');
-        if (docEl) docEl.textContent = data.docteur;
-        if (blocEl) blocEl.style.display = '';
-      }
 
       // 2. On lit la colonne "reseaux" (ou "reseaux_sociaux" par sécurité)
       const soc = data.reseaux || data.reseaux_sociaux || {};
@@ -1096,7 +906,7 @@
       container.innerHTML = ''; // On vide pour n'afficher que la sélection du BO
 
       // ── ENVOI DE DOCUMENT ── (option activable par page)
-      const blocDoc = document.getElementById('card-ordonnance');
+      const blocDoc = document.getElementById('card-document');
       if (blocDoc) {
         if (data.envoi_document) {
           blocDoc.style.display = '';
@@ -1162,7 +972,7 @@
       const googleUrlVal = googleObj?.url || googleObj?.val;
       
       // URL Google Avis calculée une fois, réutilisée pour la carte ET le
-      // bouton d'avis affiché après l'envoi d'une ordonnance.
+      // bouton d'avis affiché après l'envoi d'un document.
       let googleAvisUrl = '';
       if (googleUrlVal && googleUrlVal.trim() !== '') {
         googleAvisUrl = googleUrlVal.startsWith('http')
@@ -1178,8 +988,8 @@
           </a>`;
       }
 
-      // Bouton d'avis du pop-up post-ordonnance : activé uniquement si le
-      // pharmacien a renseigné un lien Google Avis. Sinon, pas de bouton.
+      // Bouton d'avis affiché après l'envoi : uniquement si le client
+      // a renseigné un lien Google Avis. Sinon, pas de bouton.
       const btnReview = document.getElementById('btn-google-review');
       if (btnReview) {
         if (googleAvisUrl) {
@@ -1266,6 +1076,35 @@
       }
 
 
+      // ── LIENS PERSONNALISÉS ──
+      // Toute clé « perso_… » est un bouton libre créé depuis le back
+      // office : il porte son propre libellé et sa propre icône.
+      Object.keys(soc)
+        .filter(function(cle){ return cle.indexOf('perso_') === 0; })
+        .forEach(function(cle){
+          const o = soc[cle] || {};
+          const actif = o.actif ?? o.active;
+          const url   = (o.url || o.val || o.valeur || '').trim();
+          if (!actif || !url) return;
+
+          const lien  = url.startsWith('http') ? url : 'https://' + url;
+          const nom   = (o.label || 'Mon lien').trim();
+          const icone = (o.icone || '').trim();
+
+          const visuel = icone
+            ? `<img src="${icone}" alt="" class="social-card-img" onerror="this.outerHTML='<div class=\\'social-card-fallback\\' style=\\'background:#0f172a;color:#fff;\\'>&#128279;</div>'">`
+            : `<div class="social-card-fallback" style="background:#0f172a;color:#fff;">&#128279;</div>`;
+
+          const a = document.createElement('a');
+          a.href = lien;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.className = 'social-card-item';
+          a.innerHTML = visuel + '<div class="social-card-txt"></div>';
+          // textContent : le libellé saisi n'est jamais interprété en HTML
+          a.querySelector('.social-card-txt').textContent = nom;
+          container.appendChild(a);
+        });
 
     } catch (err) {
       console.error("Erreur lors de la synchronisation Supabase du profil :", err);
