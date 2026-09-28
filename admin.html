@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -404,7 +405,7 @@ function toast(msg, isErr) {
 // ══ LOAD ══
 async function loadPages() {
   const { data, error } = await sb.from('pages')
-    .select('slug,nom,soustitre,telephone,email_contact,ville,canal_acquisition,montant_paye,created_at,horaires,reseaux')
+    .select('slug,nom,soustitre,telephone,email_contact,ville,canal_acquisition,montant_paye,created_at,horaires,reseaux,avis_google_url')
     .order('created_at', { ascending:false });
 
   if (error) {
@@ -547,7 +548,7 @@ function copierTexte(txt) {
 // ══ STATS ══
 function isConfigured(p){
   // Les templates EmailJS sont globaux — reste à vérifier email + lien avis
-  return !!p.email_contact && !!(p.reseaux?.google?.url);
+  return !!p.email_contact && !!(p.avis_google_url || p.reseaux?.google?.url);
 }
 function updateStats() {
   const total = allPages.length;
@@ -600,7 +601,8 @@ function renderList(list) {
       : '—';
 
     const emailVal = p.email_contact || '';
-    const avisVal  = p.reseaux?.google?.url || '';
+    const avisVal  = p.avis_google_url || '';
+    const avisClient = p.reseaux?.google?.url || '';
 
     return `
       <div class="pharma-card" id="card-${esc(p.slug)}">
@@ -628,10 +630,14 @@ function renderList(list) {
             </div>
           </div>
           <div class="config-field">
-            <label>Lien Google Avis ${avisVal ? '' : '<span style="color:#d97706">— à renseigner</span>'}</label>
+            <label>Lien Google Avis ${avisVal
+              ? '<span style="color:#15803d">— prioritaire</span>'
+              : (avisClient ? '<span style="color:#64748b">— celui du client s\'applique</span>'
+                            : '<span style="color:#d97706">— à renseigner</span>')}</label>
             <div class="config-row">
               <input class="config-input ${avisVal?'saved':''}" id="avis-${esc(p.slug)}"
-                value="${esc(avisVal)}" placeholder="https://g.page/r/..."
+                value="${esc(avisVal)}" placeholder="${avisClient ? esc(avisClient) : 'https://g.page/r/...'}"
+                title="${avisClient ? 'Lien actuellement saisi par le client : ' + esc(avisClient) : ''}"
                 data-slug="${esc(p.slug)}" data-action="avis-input">
               <button class="btn-save-sm" data-slug="${esc(p.slug)}" data-action="save-avis">Sauver</button>
             </div>
@@ -668,21 +674,25 @@ async function saveEmail(slug) {
   toast('Email de contact enregistré');
 }
 
+// Le lien saisi ici est enregistré dans la colonne `avis_google_url`,
+// que le back office ne touche jamais. Il prime sur celui du client sur
+// la page publique. Champ vidé = on rend la main au client.
 async function saveAvis(slug) {
   const input = document.getElementById('avis-'+slug);
   const url = input.value.trim();
   const p = allPages.find(x=>x.slug===slug);
-  const reseaux = JSON.parse(JSON.stringify(p?.reseaux || {}));
-  if (!reseaux.google) reseaux.google = { actif:true };
-  reseaux.google.url = url;
-  reseaux.google.actif = true;
 
-  const { error } = await sb.from('pages').update({ reseaux }).eq('slug', slug);
+  const { error } = await sb.from('pages')
+    .update({ avis_google_url: url || null })
+    .eq('slug', slug);
   if (error) { toast('Erreur : '+error.message, true); return; }
-  input.classList.add('saved');
-  if (p) p.reseaux = reseaux;
+
+  input.classList.toggle('saved', !!url);
+  if (p) p.avis_google_url = url || null;
   updateStats();
-  toast('Lien Google Avis enregistré');
+  filterList();
+  toast(url ? 'Lien Google Avis enregistré · prioritaire'
+            : 'Lien retiré · celui du client reprend la main');
 }
 
 // ══ SUPPRESSION ══
@@ -771,7 +781,8 @@ function showDetail(slug) {
     ['Ville', p.ville || '—'],
     ['Template ordonnances', TPL_ORDONNANCES + ' (global)'],
     ['Template commandes',   TPL_COMMANDES + ' (global)'],
-    ['Google Avis', soc.google?.url||'—'],
+    ['Google Avis (admin, prioritaire)', p.avis_google_url || '—'],
+    ['Google Avis (client)', soc.google?.url || '—'],
     ['Instagram', soc.instagram?.url||'—'],
     ['Facebook', soc.facebook?.url||'—'],
     ['Site Web', soc.website?.url||'—'],
