@@ -237,7 +237,7 @@
 
 <!-- NAV -->
 <nav id="nav">
-  <div class="nav-brand">Swifty<span>Pharm</span></div>
+  <div class="nav-brand">Swifty<span>Page</span></div>
   <div class="nav-badge">ADMIN</div>
   <div class="nav-right">
     <span class="nav-count" id="nav-count"></span>
@@ -336,7 +336,7 @@
 <!-- MODAL SUPPRESSION -->
 <div class="modal-overlay" id="modal-delete">
   <div class="modal-box" style="max-width:460px">
-    <h3>Supprimer cette pharmacie</h3>
+    <h3>Supprimer cette page</h3>
     <div class="del-warning">
       <strong>⚠️ Action irréversible</strong>
       <p>Vous êtes sur le point de supprimer <strong id="del-pharma-name"></strong>.</p>
@@ -361,8 +361,8 @@
 <div id="toast"></div>
 
 <script>
-const SUPABASE_URL = 'https://twewgozdynowoieyqrcf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3ZXdnb3pkeW5vd29pZXlxcmNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1MzM4MjEsImV4cCI6MjA5OTEwOTgyMX0.p8niB1AotODvOlTg529rWz4BsPVRwHqflx5EXasgn5s';
+const SUPABASE_URL = 'https://lfmgmzcqwteymycipuqd.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmbWdtemNxd3RleW15Y2lwdXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1OTQ2NjIsImV4cCI6MjEwNjE3MDY2Mn0.RRaY1wbjavSbSYtpmw8VNqALMSP9s_ZUWG_lISegz0k';
 const EMAILJS_SERVICE_ID  = 'service_ehw7pcv';
 const TPL_ORDONNANCES     = 'template_hlj4f0g';  // global
 const TPL_COMMANDES       = 'template_a15fvjn';  // global
@@ -566,7 +566,7 @@ function updateStats() {
   document.getElementById('stat-ca').textContent =
     ca.toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:0}) + ' €';
 
-  document.getElementById('nav-count').textContent = total+' pharmacie'+(total>1?'s':'');
+  document.getElementById('nav-count').textContent = total+' page'+(total>1?'s':'');
 }
 
 // ══ RENDER ══
@@ -657,7 +657,7 @@ async function saveEmail(slug) {
     return;
   }
   const { error } = await sb.from('pages')
-    .update({ email_contact: value, emailjs_service_id: EMAILJS_SERVICE_ID })
+    .update({ email_contact: value })
     .eq('slug', slug);
   if (error) { toast('Erreur : '+error.message, true); return; }
   input.classList.add('saved');
