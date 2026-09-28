@@ -26,6 +26,8 @@
   </script>
 
   <style>
+    /* Couleur de fond choisie dans le back office (gris par défaut) */
+    :root { --bg-page: #d2d2d2; }
     * { margin:0; padding:0; box-sizing:border-box; }
     * {
       -webkit-user-select: none;
@@ -46,7 +48,7 @@
       flex-direction: column;
       align-items: center;
       padding: 0 0 64px;
-      background-color: #d2d2d2;
+      background-color: var(--bg-page);
     }
 
     /* ══ BANNIÈRE ══ */
@@ -87,7 +89,7 @@
     body > *:not(#page-splash) { opacity: 0; transition: opacity .25s ease; }
     body.page-ready > *:not(#page-splash) { opacity: 1; }
     #page-splash {
-      position: fixed; inset: 0; background: #d2d2d2; z-index: 9999;
+      position: fixed; inset: 0; background: var(--bg-page); z-index: 9999;
       transition: opacity .25s ease;
     }
     body.page-ready #page-splash { opacity: 0; pointer-events: none; }
@@ -370,7 +372,7 @@
 
     /* ══ CADRE DESKTOP ══ */
     @media (min-width: 769px) {
-      html { background: #d2d2d2; }
+      html { background: var(--bg-page); }
       body {
         max-width: 580px;
         margin: 24px auto;
@@ -871,7 +873,15 @@
       // On ne remplace l'image que si le client a vraiment un logo.
       // Sinon on laisse le logo par défaut déjà présent dans le HTML.
       if (_logo) document.getElementById('profile-avatar-img').src = _logo;
-      if (data.banniere_base64) document.getElementById('banniere-img').src = data.banniere_base64;
+      // Couleur de fond choisie par le client
+      if (data.couleur_fond) {
+        document.documentElement.style.setProperty('--bg-page', data.couleur_fond);
+      }
+
+      // Banniere : celle du client si elle existe, sinon on conserve
+      // celle par defaut deja presente dans le HTML.
+      const _ban = data.banniere_url || data.banniere_base64;
+      if (_ban) document.getElementById('banniere-img').src = _ban;
 
 
       // Téléphone & Maps dynamiques
