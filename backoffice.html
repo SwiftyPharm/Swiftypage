@@ -845,15 +845,9 @@ input:focus,textarea:focus,select:focus{
         <input type="text" id="ph-sub" placeholder="Votre accroche" oninput="autoSave()">
       </div>
     </div>
-    <div class="field-row">
-      <div class="field">
-        <label>Téléphone</label>
-        <input type="tel" id="ph-tel" placeholder="+33 1 23 45 67 89" oninput="autoSave()">
-      </div>
-      <div class="field">
-        <label>Email de contact (réception des documents)</label>
-        <input type="email" id="ph-email" placeholder="contact@mon-site.fr" oninput="autoSave()">
-      </div>
+    <div class="field">
+      <label>Téléphone</label>
+      <input type="tel" id="ph-tel" placeholder="+33 1 23 45 67 89" oninput="autoSave()">
     </div>
     <div class="field">
       <label>Adresse</label>
@@ -894,10 +888,17 @@ input:focus,textarea:focus,select:focus{
         <span class="sw-piste"><span class="sw-bille"></span></span>
       </label>
     </div>
-    <div class="field" id="doc-titre-field" style="display:none;margin-top:16px">
-      <label>Intitulé affiché aux visiteurs</label>
-      <input type="text" id="ph-envoi-doc-titre" placeholder="Envoyez votre document" oninput="autoSave()">
-      <p class="field-hint">Exemples : « Transmettez votre devis », « Envoyez vos justificatifs », « Déposez votre dossier ».</p>
+    <div id="doc-champs" style="display:none;margin-top:16px">
+      <div class="field">
+        <label>Email de réception</label>
+        <input type="email" id="ph-email" placeholder="contact@mon-site.fr" oninput="autoSave()">
+        <p class="field-hint" id="doc-email-hint">C'est à cette adresse que les documents déposés vous seront envoyés.</p>
+      </div>
+      <div class="field">
+        <label>Intitulé affiché aux visiteurs</label>
+        <input type="text" id="ph-envoi-doc-titre" placeholder="Envoyez votre document" oninput="autoSave()">
+        <p class="field-hint">Exemples : « Transmettez votre devis », « Envoyez vos justificatifs », « Déposez votre dossier ».</p>
+      </div>
     </div>
   </div>
 
@@ -1629,6 +1630,11 @@ const RESEAUX_DEF = {
 let reseauxState = {};
 let lmCleEnCours = null;
 
+// Clés de `reseaux` que ce back office ne gère pas (écrites par l'admin
+// ou par une version ultérieure). On les conserve à l'identique : sans
+// cela, la première sauvegarde du client les effacerait.
+let reseauxInconnus = {};
+
 const estPerso = cle => typeof cle === 'string' && cle.indexOf('perso_') === 0;
 
 // Définition d'un lien, qu'il vienne du catalogue ou qu'il soit libre.
@@ -1656,6 +1662,10 @@ function defPour(cle){
 // donc sans perdre le moindre lien.
 function normaliserReseaux(brut){
   const out = {};
+  reseauxInconnus = {};
+  Object.keys(brut || {}).forEach(cle => {
+    if(!RESEAUX_DEF[cle] && !estPerso(cle)) reseauxInconnus[cle] = brut[cle];
+  });
 
   // Liens personnalisés : on reprend tel quel ce qui a été enregistré.
   Object.keys(brut || {}).filter(estPerso).forEach(cle => {
@@ -1684,7 +1694,7 @@ function normaliserReseaux(brut){
 }
 
 function serialiserReseaux(){
-  const out = {};
+  const out = Object.assign({}, reseauxInconnus);
   Object.entries(reseauxState).forEach(([cle, v]) => {
     const valeur = (v.valeur||'').trim();
     if(estPerso(cle)){
@@ -2253,10 +2263,26 @@ function onEnvoiDocToggle(){
   majChampDoc();
   autoSave();
 }
+// Le rappel sur l'email se met à jour pendant la saisie.
+document.addEventListener('input', function(e){
+  if(e.target && e.target.id === 'ph-email') majChampDoc();
+});
 function majChampDoc(){
   const actif = document.getElementById('ph-envoi-doc')?.checked;
-  const champ = document.getElementById('doc-titre-field');
-  if(champ) champ.style.display = actif ? '' : 'none';
+  const champs = document.getElementById('doc-champs');
+  if(champs) champs.style.display = actif ? '' : 'none';
+
+  // Sans adresse de réception, l'option est active mais inopérante :
+  // autant le dire tout de suite plutôt qu'à la première tentative.
+  const mail = document.getElementById('ph-email');
+  const aide = document.getElementById('doc-email-hint');
+  if(actif && mail && aide){
+    const vide = mail.value.trim() === '';
+    aide.textContent = vide
+      ? "Renseignez une adresse : sans elle, les documents envoyés ne vous parviendront pas."
+      : "C'est à cette adresse que les documents déposés vous seront envoyés.";
+    aide.style.color = vide ? '#b45309' : '';
+  }
 }
 window.onEnvoiDocToggle = onEnvoiDocToggle;
 
