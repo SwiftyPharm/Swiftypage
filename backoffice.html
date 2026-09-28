@@ -1044,6 +1044,24 @@ function esc(s){
 }
 
 // ═══════════════════════════════
+//  EN-TÊTES SUPABASE
+// ═══════════════════════════════
+// La clé anon identifie le projet ; le jeton de session identifie la
+// PERSONNE. Les policies d'écriture de la table `pages` reposent sur
+// auth.uid() : sans ce jeton, tout enregistrement est rejeté par la RLS.
+async function entetesSupabase(extra){
+  let jeton = SUPABASE_KEY;
+  try{
+    const { data } = await sb.auth.getSession();
+    if(data?.session?.access_token) jeton = data.session.access_token;
+  }catch(e){ /* pas de session : on retombe sur la clé anon */ }
+  return Object.assign({
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + jeton,
+  }, extra || {});
+}
+
+// ═══════════════════════════════
 //  STORAGE
 // ═══════════════════════════════
 function loadConfig(){
@@ -1111,9 +1129,21 @@ async function syncToSupabase(cfg){
       logo_url: cfg.pharmacy.logo || '',
       reseaux:cfg.pharmacy.reseaux||{}
     };
+
+    // L'upsert emprunte le chemin INSERT ... ON CONFLICT : la policy
+    // d'insertion vérifie « auth.uid() = user_id ». Sans ce champ, la
+    // vérification porte sur NULL et l'écriture est refusée.
+    try{
+      const { data } = await sb.auth.getSession();
+      if(data?.session?.user?.id) payload.user_id = data.session.user.id;
+    }catch(e){ /* sans session, l'écriture sera de toute façon refusée */ }
+
     const res = await fetch(SUPABASE_REST+'pages?on_conflict=slug',{
       method:'POST',
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+      headers: await entetesSupabase({
+        'Content-Type':'application/json',
+        'Prefer':'resolution=merge-duplicates',
+      }),
       body:JSON.stringify(payload)
     });
     if(!res.ok){
@@ -1128,7 +1158,7 @@ async function loadFromSupabase(){
   if(!SLUG) return;
   try{
     const res=await fetch(SUPABASE_REST+'pages?slug=eq.'+SLUG+'&select=*',{
-      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+      headers: await entetesSupabase()
     });
     if(res.ok){
       const rows=await res.json();
