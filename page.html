@@ -945,21 +945,29 @@
           </a>`;
       }
 
-      // ── GOOGLE AVIS ── (cherche 'google' ou 'avis')
+      // ── GOOGLE AVIS ──
+      // Deux sources possibles : la colonne `avis_google_url`, renseignée
+      // depuis l'admin, et le lien saisi par le client dans son back
+      // office. Celui de l'admin l'emporte systématiquement ; il suffit de
+      // le vider pour rendre la main au client.
       const googleObj = soc.google || soc.avis;
       const googleActif = googleObj?.actif ?? googleObj?.active;
-      const googleUrlVal = googleObj?.url || googleObj?.val;
-      
-      // URL Google Avis calculée une fois, réutilisée pour la carte ET le
-      // bouton d'avis affiché après l'envoi d'un document.
+      const urlClient = (googleObj?.url || googleObj?.val || '').trim();
+      const urlAdmin  = (data.avis_google_url || '').trim();
+      const googleUrlVal = urlAdmin || urlClient;
+
+      // URL calculée une fois, réutilisée pour la carte ET le bouton
+      // d'avis affiché après l'envoi d'un document.
       let googleAvisUrl = '';
-      if (googleUrlVal && googleUrlVal.trim() !== '') {
+      if (googleUrlVal) {
         googleAvisUrl = googleUrlVal.startsWith('http')
           ? googleUrlVal
           : `https://www.google.com/search?q=${encodeURIComponent(googleUrlVal + ' avis google')}&tbm=lcl`;
       }
 
-      if (googleObj && googleActif && googleAvisUrl) {
+      // Un lien posé par l'admin s'affiche même si le client n'a jamais
+      // activé la carte de son côté.
+      if (googleAvisUrl && (urlAdmin || (googleObj && googleActif))) {
         container.innerHTML += `
           <a href="${googleAvisUrl}" target="_blank" class="social-card-item">
             <img src="/assets/google-avis-icon.png" alt="Google Avis" class="social-card-img" onerror="this.outerHTML='<div class=\\'social-card-fallback\\' style=\\'background:#f1f5f9;color:#0d2f3f;\\'>⭐</div>'">
