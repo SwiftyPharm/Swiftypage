@@ -786,6 +786,9 @@ input:focus,textarea:focus,select:focus{
   .btn-view-page,.btn-logout{white-space:nowrap;padding:6px 10px;font-size:11.5px}
   .nav-right{gap:6px}
   #save-indicator{display:none}
+  /* L'échec, lui, doit rester visible sur téléphone */
+  #save-indicator.ko{display:block;position:fixed;top:66px;left:50%;transform:translateX(-50%);
+    z-index:300;padding:6px 14px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
   .chart-svg{height:100px}
 }
 </style>
@@ -1378,11 +1381,25 @@ async function initAuth(){
     hideLogin();
     return;
   }
-  // …le reste du code existant
+  const slugUrl = params.get('slug') || '';
   const {data:{session}}=await sb.auth.getSession();
   if(session){
-    const {data}=await sb.from('pages').select('slug').eq('user_id',session.user.id).single();
-    if(data){SLUG=data.slug;localStorage.setItem('swiftlink_slug',SLUG);setStorageKey(SLUG);}
+    const { data: pagesCompte } = await sb.from('pages').select('slug').eq('user_id', session.user.id);
+    const slugs = (pagesCompte || []).map(p => p.slug);
+
+    // Le lien vise une page qui n'appartient pas au compte connecté dans ce
+    // navigateur (ex. un ancien client) : on déconnecte au lieu d'afficher
+    // le back office d'un autre client.
+    if(slugUrl && slugs.length && !slugs.includes(slugUrl)){
+      await sb.auth.signOut();
+      localStorage.removeItem('swiftlink_slug');
+      window.location.href = '/login.html?slug=' + encodeURIComponent(slugUrl);
+      return;
+    }
+
+    // Un compte peut posséder plusieurs pages : on ouvre celle de l'adresse.
+    const choisi = (slugUrl && slugs.includes(slugUrl)) ? slugUrl : (slugs[0] || slugUrl);
+    if(choisi){SLUG=choisi;localStorage.setItem('swiftlink_slug',SLUG);setStorageKey(SLUG);}
     hideLogin();
     return;
   }
